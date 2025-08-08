@@ -13,6 +13,9 @@ public class ExpressionButton : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
+            return;
+
         Managers.RoundManager.AddExpression(_expressionString);
     }
 }

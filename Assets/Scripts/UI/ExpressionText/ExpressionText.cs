@@ -9,6 +9,7 @@ public class ExpressionText : MonoBehaviour
     {
         _text = GetComponent<TMP_Text>();
         Managers.RoundManager.OnExpressionChangeEvent += HandleExpressionChange;
+        Managers.RoundManager.OnExpressionClearEvent += HandleExpressionChange;
     }
 
     void HandleExpressionChange()
@@ -20,5 +21,6 @@ public class ExpressionText : MonoBehaviour
     void OnDestroy()
     {
         Managers.RoundManager.OnExpressionChangeEvent -= HandleExpressionChange;
+        Managers.RoundManager.OnExpressionClearEvent -= HandleExpressionChange;
     }
 }

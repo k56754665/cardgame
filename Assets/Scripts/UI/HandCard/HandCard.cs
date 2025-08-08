@@ -4,20 +4,26 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class HandCard : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public Card CardData => _cardData;
     Card _cardData;
     [SerializeField] TMP_Text _text;
-    Toggle _toggle;
 
     [SerializeField] DOTweenAnimation _cardUpTween;
     [SerializeField] DOTweenAnimation _cardColorTween;
     [SerializeField] DOTweenAnimation _cardShakeTween;
 
-    void Start()
+    bool _isSelected;
+
+    private void Start()
     {
-        _toggle = GetComponent<Toggle>();
+        Managers.RoundManager.OnExpressionClearEvent += DeselectCard;
+    }
+
+    private void OnDestroy()
+    {
+        Managers.RoundManager.OnExpressionClearEvent -= DeselectCard;
     }
 
     public void SetCard(Card card)
@@ -26,41 +32,57 @@ public class HandCard : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
         _text.text = $"{card.number}";
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    private void CardUp()
     {
-        if (_toggle.isOn)
-        {
-            _cardColorTween?.DOPlayForward();
-        }
-        else
-        {
-            _cardColorTween?.DOPlayBackwards();
-            _cardUpTween?.DOPlayBackwards();
-        }
-        _cardShakeTween?.DORestart();
-
-        Managers.RoundManager.AddExpression(_cardData.number.ToString());
+        _cardColorTween?.DOPlayForward();
+        _cardUpTween?.DOPlayForward();
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    private void CardDown()
     {
-        _cardUpTween?.DOPlayForward();
+        _cardColorTween?.DOPlayBackwards();
+        _cardUpTween?.DOPlayBackwards();
+    }
+
+    private void DeselectCard()
+    {
+        _isSelected = false;
+
+        CardDown();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
+            return;
+
+        if (_isSelected)
+            return;
+
+        _isSelected = true;
+        CardUp();
+        _cardShakeTween?.DORestart();
+        Managers.RoundManager.AddExpression(_cardData.number.ToString());
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (_toggle != null && _toggle.isOn) return;
+        if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
+            return;
+
+        if (_isSelected)
+            return;
 
         _cardUpTween?.DOPlayForward();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (_toggle != null && _toggle.isOn)
-        {
-            _cardUpTween?.DOPlayForward();
+        if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
             return;
-        }
+
+        if (_isSelected)
+            return;
 
         _cardUpTween?.DOPlayBackwards();
     }

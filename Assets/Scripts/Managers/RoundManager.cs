@@ -17,6 +17,7 @@ public class RoundManager
 
     public event Action<int> OnGoalNumChangeEvent;
     public event Action OnExpressionChangeEvent;
+    public event Action OnExpressionClearEvent;
 
     public void SetRandomGoalNum()
     {
@@ -30,19 +31,9 @@ public class RoundManager
         OnExpressionChangeEvent?.Invoke();
     }
 
-    public void EraseExpression()
-    {
-        if (_expression.Length == 0)
-            return;
-
-        _expression = _expression.Remove(_expression.Length - 1);
-
-        OnExpressionChangeEvent?.Invoke();
-    }
-
     public void ClearExpression()
     {
         _expression = "";
-        OnExpressionChangeEvent?.Invoke();
+        OnExpressionClearEvent?.Invoke();
     }
 }
