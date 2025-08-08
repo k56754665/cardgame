@@ -8,7 +8,7 @@ public class HandCard : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
 {
     public Card CardData => _cardData;
     Card _cardData;
-    TMP_Text _text;
+    [SerializeField] TMP_Text _text;
     Toggle _toggle;
 
     [SerializeField] DOTweenAnimation _cardUpTween;
@@ -18,7 +18,6 @@ public class HandCard : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
     void Start()
     {
         _toggle = GetComponent<Toggle>();
-        _text = GetComponentInChildren<TMP_Text>();
     }
 
     public void SetCard(Card card)
@@ -39,6 +38,8 @@ public class HandCard : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler
             _cardUpTween?.DOPlayBackwards();
         }
         _cardShakeTween?.DORestart();
+
+        Managers.RoundManager.AddExpression(_cardData.number.ToString());
     }
 
     public void OnPointerDown(PointerEventData eventData)

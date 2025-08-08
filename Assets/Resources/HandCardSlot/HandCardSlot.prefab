@@ -137,6 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f59e63eb618fe940991204e847c039a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _text: {fileID: 3874362088550458384}
   _cardUpTween: {fileID: 7018547251167620055}
   _cardColorTween: {fileID: 4808541864811063278}
   _cardShakeTween: {fileID: 703098272454081755}

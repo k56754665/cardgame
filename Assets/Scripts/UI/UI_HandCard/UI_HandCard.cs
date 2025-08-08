@@ -13,12 +13,26 @@ public class UI_HandCard : MonoBehaviour
         Managers.DeckManager.OnHandChangeAction += HandleHandChange;
     }
 
+    void OnDestroy()
+    {
+        Managers.DeckManager.OnHandChangeAction -= HandleHandChange;
+    }
+
     void MakeHandCards()
     {
-        foreach(Card card in Managers.DeckManager.Hand)
+        Debug.Log("MakeHandCards");
+
+        foreach (Transform child in _handCardRoot)
+        {
+            Destroy(child.gameObject);
+        }
+
+        Managers.DeckManager.PrintAllCards();
+
+        foreach (Card card in Managers.DeckManager.Hand)
         {
             GameObject go = Instantiate(_handCardPrefab, _handCardRoot);
-            go.GetComponent<HandCard>().SetCard(card);
+            go.GetComponentInChildren<HandCard>().SetCard(card);
         }
     }
 
