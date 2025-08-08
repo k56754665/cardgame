@@ -1,10 +1,13 @@
 using System;
 using UnityEngine;
 
-public class RoundManager : MonoBehaviour
+public class RoundManager
 {
     public int GoalNum => _goalNum;
     private int _goalNum;
+
+    public int HandSize => _handSize;
+    private int _handSize = 8;
 
     public event Action<int> OnGoalNumChangeEvent;
 

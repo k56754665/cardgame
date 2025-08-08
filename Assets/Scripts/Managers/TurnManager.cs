@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour
+public class TurnManager
 {
     public ITurnState CurrentTurn => _currentTurn;
     ITurnState _currentTurn;

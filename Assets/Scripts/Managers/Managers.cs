@@ -15,6 +15,9 @@ public class Managers : MonoBehaviour
     public static RoundManager RoundManager => _roundManager;
     static RoundManager _roundManager = new RoundManager();
 
+    public static DeckManager DeckManager => _deckManager;
+    static DeckManager _deckManager = new DeckManager();
+
     void Awake()
     {
         if (_instance == null)
@@ -29,14 +32,23 @@ public class Managers : MonoBehaviour
         }
     }
 
-    void InitManagers()
+    private void Start()
     {
         TurnManager.Init();
+    }
+
+    void InitManagers()
+    {
+        DeckManager.Init();
     }
 
     void Update()
     {
         TurnManager.UpdateCurrentTurn();
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            DeckManager.PrintAllCards();
+        }
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
