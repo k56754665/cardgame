@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, ITooltip
 {
     public Card CardData => _cardData;
     Card _cardData;
@@ -67,6 +67,8 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        ShowTooltip();
+
         if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
             return;
 
@@ -78,6 +80,8 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        HideTooltip();
+
         if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
             return;
 
@@ -85,5 +89,17 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
             return;
 
         _cardUpTween?.DOPlayBackwards();
+    }
+
+    public void ShowTooltip()
+    {
+        RectTransform rect = GetComponent<RectTransform>();
+        string description = $"Á¡¼ö\n{_cardData.score}";
+        Managers.RoundManager.ShowTooltipEvent(rect, description);
+    }
+
+    public void HideTooltip()
+    {
+        Managers.RoundManager.HideTooltipEvent();
     }
 }

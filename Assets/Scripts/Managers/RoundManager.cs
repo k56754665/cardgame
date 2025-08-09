@@ -24,6 +24,9 @@ public class RoundManager
     public event Action<long> OnExpressionIntegerEvent;
     public event Action<BigInteger, BigInteger> OnExpressionFractionEvent;
 
+    public event Action<RectTransform, string> OnShowTooltipEvent;
+    public event Action OnHideTooltipEvent;
+
     public void SetRandomGoalNum()
     {
         _goalNum = UnityEngine.Random.Range(0, 100);
@@ -74,6 +77,16 @@ public class RoundManager
             ClearExpression();
             Debug.LogError($"Expression calculation failed: {e.Message}");
         }
+    }
+
+    public void ShowTooltipEvent(RectTransform rect, string description)
+    {
+        OnShowTooltipEvent?.Invoke(rect, description);
+    }
+
+    public void HideTooltipEvent()
+    {
+        OnHideTooltipEvent?.Invoke();
     }
 
     private bool IsInteger(double x, double epsilon = 1e-12)
