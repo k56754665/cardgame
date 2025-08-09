@@ -89,54 +89,50 @@ public readonly struct Fraction : IEquatable<Fraction>
     }
 
     // 3) double → 근사 분수 변환 (연분수)
-    public static Fraction FromDouble(double value, int maxDenominator = 1_000_000, double epsilon = 1e-12)
+    public static Fraction FromDouble(double value, int maxDenominator = 100000, double epsilon = 1e-12)
     {
         if (double.IsNaN(value) || double.IsInfinity(value))
-            throw new ArgumentException("Value must be a finite number.");
+            throw new ArgumentException("Value must be finite.");
 
-        double rounded = Math.Round(value);
-        if (Math.Abs(value - rounded) < epsilon)
-            return new Fraction((BigInteger)rounded, 1);
+        int sign = Math.Sign(value);
+        double x = Math.Abs(value);
 
-        long a0 = (long)Math.Floor(value);
-        double frac = value - a0;
+        long a = (long)Math.Floor(x);
+        if (Math.Abs(x - a) < epsilon)
+            return new Fraction(sign * a, 1);
 
-        if (Math.Abs(frac) < epsilon)
-            return new Fraction(a0, 1);
+        // p(-1)=1,q(-1)=0 ; p(0)=a0,q(0)=1
+        BigInteger p0 = 1, q0 = 0;
+        BigInteger p1 = a, q1 = 1;
 
-        BigInteger numPrev = 1;
-        BigInteger num = a0;
-        BigInteger denPrev = 0;
-        BigInteger den = 1;
-
-        double x = value;
+        double r = x;
         while (true)
         {
-            long a = (long)Math.Floor(x);
-            BigInteger numNext = a * num + numPrev;
-            BigInteger denNext = a * den + denPrev;
+            double frac = r - Math.Floor(r);
+            if (frac < epsilon) // 유리수로 딱 떨어짐
+                return new Fraction(sign * p1, q1);
 
-            if (denNext > maxDenominator)
+            r = 1.0 / frac;
+            long ai = (long)Math.Floor(r);
+
+            BigInteger p2 = ai * p1 + p0;
+            BigInteger q2 = ai * q1 + q0;
+
+            if (q2 > maxDenominator)
             {
-                Fraction f1 = new Fraction(num, den);
-                Fraction f2 = new Fraction(numNext, denNext);
-                return (Math.Abs(value - f1.ToDouble()) <= Math.Abs(value - f2.ToDouble())) ? f1 : f2;
+                // q1과 q2 중 더 가까운 쪽 선택
+                Fraction f1 = new Fraction(sign * p1, q1);
+                Fraction f2 = new Fraction(sign * p2, q2);
+                return (Math.Abs(f1.ToDouble() - x) <= Math.Abs(f2.ToDouble() - x)) ? f1 : f2;
             }
 
-            double approx = (double)numNext / (double)denNext;
-            if (Math.Abs(approx - value) < epsilon)
-                return new Fraction(numNext, denNext);
+            double approx = (double)p2 / (double)q2;
+            if (Math.Abs(approx - x) < epsilon)
+                return new Fraction(sign * p2, q2);
 
-            numPrev = num;
-            denPrev = den;
-            num = numNext;
-            den = denNext;
-
-            double remainder = x - Math.Floor(x);
-            if (remainder < epsilon)
-                return new Fraction(num, den);
-
-            x = 1.0 / remainder;
+            p0 = p1; q0 = q1;
+            p1 = p2; q1 = q2;
         }
     }
+
 }

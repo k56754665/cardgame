@@ -20,7 +20,6 @@ public class AnswerRoot : MonoBehaviour
 
     private void ShowInteger(long num)
     {
-        Debug.Log("OnExpressionIntegerEvent");
         equalText.text = "=";
         integerText.text = $"{num}";
     }
@@ -31,13 +30,12 @@ public class AnswerRoot : MonoBehaviour
         equalText.text = "";
     }
 
-    private void ShowFraction(BigInteger deno, BigInteger nume)
+    private void ShowFraction(BigInteger num, BigInteger den)
     {
-        Debug.Log("OnExpressionFractionEvent");
         _fractionLine.enabled = true;
         equalText.text = "=";
-        denominatorText.text = $"{deno}";
-        numeratorText.text = $"{nume}";
+        denominatorText.text = $"{den}";
+        numeratorText.text = $"{num}";
     }
 
     private void HideFraction()
