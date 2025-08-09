@@ -9,6 +9,7 @@ public class TextCount : MonoBehaviour
     {
         _text = GetComponent<TMP_Text>();
         Managers.RoundManager.OnExpressionChangeEvent += HandleExpressionChange;
+        Managers.RoundManager.OnExpressionClearEvent += HandleExpressionChange;
         HandleExpressionChange();
     }
 
@@ -21,5 +22,6 @@ public class TextCount : MonoBehaviour
     void OnDestroy()
     {
         Managers.RoundManager.OnExpressionChangeEvent -= HandleExpressionChange;
+        Managers.RoundManager.OnExpressionClearEvent -= HandleExpressionChange;
     }
 }

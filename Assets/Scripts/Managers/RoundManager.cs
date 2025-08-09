@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using UnityEngine;
 
 public class RoundManager
@@ -35,5 +36,28 @@ public class RoundManager
     {
         _expression = "";
         OnExpressionClearEvent?.Invoke();
+    }
+
+    public void CalculateExpression()
+    {
+        Debug.Log($"_expression: {_expression}");
+        try
+        {
+            string newExpression = _expression;
+
+            newExpression = newExpression
+                .Replace("¡¿", "*")  // '¡¿'¸¦ ³ª´°¼À ±âÈ£·Î º¯È¯
+                .Replace("¡À", "/"); // '¡À'¸¦ ³ª´°¼À ±âÈ£·Î º¯È¯
+
+            DataTable table = new DataTable();
+            object value = table.Compute(newExpression, "");
+            _expression = Convert.ToString(value);
+
+            OnExpressionChangeEvent?.Invoke();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Expression calculation failed: {e.Message}");
+        }
     }
 }
