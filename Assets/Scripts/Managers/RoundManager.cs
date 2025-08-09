@@ -6,8 +6,11 @@ using UnityEngine;
 
 public class RoundManager
 {
-    public int GoalNum => _goalNum;
-    private int _goalNum;
+    public long GoalNum => _goalNum;
+    private long _goalNum;
+
+    public int GoalPoint => _goalPoint;
+    private int _goalPoint = 50;
 
     public int HandSize => _handSize;
     private int _handSize = 8;
@@ -18,19 +21,43 @@ public class RoundManager
     public int TotalText => _totalText;
     private int _totalText = 10;
 
-    public event Action<int> OnGoalNumChangeEvent;
+    public int SubmitChance
+    {
+        get => _submitChance;
+        set
+        {
+            _submitChance = value;
+            OnChangeSubmitChanceEvent?.Invoke(_submitChance);
+        }
+    }
+    private int _submitChance = 5;
+
     public event Action OnExpressionChangeEvent;
     public event Action OnExpressionClearEvent;
     public event Action<long> OnExpressionIntegerEvent;
     public event Action<BigInteger, BigInteger> OnExpressionFractionEvent;
 
+    public event Action<int> OnChangeSubmitChanceEvent;
+
     public event Action<RectTransform, string> OnShowTooltipEvent;
     public event Action OnHideTooltipEvent;
 
+    public event Action<long> OnGoalNumIntegerEvent;
+    public event Action<BigInteger, BigInteger> OnGoalNumFractionEvent;
+
+    public event Action<int> OnChangeGoalPointEvent;
+
     public void SetRandomGoalNum()
     {
+        // TODO : 분수도 만들어야해요
         _goalNum = UnityEngine.Random.Range(0, 100);
-        OnGoalNumChangeEvent?.Invoke(_goalNum);
+        OnGoalNumIntegerEvent?.Invoke(_goalNum);
+    }
+
+    public void SetGoalPoint()
+    {
+        _goalPoint = (int)(_goalPoint * 1.2f);
+        OnChangeGoalPointEvent?.Invoke(_goalPoint);
     }
 
     public void AddExpression(string s)

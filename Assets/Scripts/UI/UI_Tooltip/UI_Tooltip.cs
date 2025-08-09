@@ -6,7 +6,7 @@ public class UI_Tooltip : MonoBehaviour
 {
     TMP_Text _text;
     Canvas _canvas;
-    Vector2 _offset = new Vector2(0f, 10f);
+    Vector2 _offset = new Vector2(0f, 60f);
 
     void Start()
     {
@@ -28,30 +28,41 @@ public class UI_Tooltip : MonoBehaviour
     {
         _canvas.enabled = false;
     }
-
     private void ShowTooltip(RectTransform rect, string description)
     {
-        // 툴팁을 표시할 대상 RectTransform의 월드 좌표 계산
-        Vector3[] worldCorners = new Vector3[4];
-        rect.GetWorldCorners(worldCorners);
-        Vector3 targetWorldPos = worldCorners[2];
+        if (rect == null) return;
 
-        // 캔버스의 렌더 모드에 따라 사용할 카메라 결정
-        Camera uiCamera = _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
+        // 0) 레이아웃/캔버스 최신화 (HLG 포함)
+        Canvas.ForceUpdateCanvases();
 
-        // 월드 좌표를 화면 좌표로 변환
-        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(uiCamera, targetWorldPos);
+        // 1) 툴팁 활성화 & 텍스트 적용 후 즉시 레이아웃 계산
+        _canvas.enabled = true;
+        _text.text = description;
 
-        // 툴팁 RectTransform 및 화면/툴팁 크기 계산
         RectTransform tooltipRect = (RectTransform)transform.GetChild(0);
-        Vector2 tooltipSize = tooltipRect.sizeDelta * _canvas.scaleFactor;
+
+        // 툴팁 자체 레이아웃 즉시 갱신
+        LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipRect);
+        // (툴팁 부모도 레이아웃이 있다면 같이 강제)
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_canvas.transform as RectTransform);
+
+        // 2) 대상 Rect 최신값을 월드→스크린으로
+        Camera uiCamera = _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
+        Vector3 worldCenter = rect.TransformPoint(rect.rect.center);
+        Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(uiCamera, worldCenter);
+
+        // 3) 툴팁 크기/스크린 크기
+        Vector2 tooltipSize = tooltipRect.rect.size * _canvas.scaleFactor;
         Vector2 screenSize = new Vector2(Screen.width, Screen.height);
 
-        // 화면을 벗어나지 않도록 좌표 클램프
-        float clampedX = Mathf.Clamp(screenPos.x, tooltipSize.x / 2f, screenSize.x - tooltipSize.x / 2f);
-        float clampedY = Mathf.Clamp(screenPos.y, tooltipSize.y / 2f, screenSize.y - tooltipSize.y / 2f);
-
+        // 4) 화면 클램프
+        float halfW = tooltipSize.x * 0.5f;
+        float halfH = tooltipSize.y * 0.5f;
+        float clampedX = Mathf.Clamp(screenPos.x, halfW, screenSize.x - halfW);
+        float clampedY = Mathf.Clamp(screenPos.y, halfH, screenSize.y - halfH);
         Vector2 clampedScreenPos = new Vector2(clampedX, clampedY);
+
+        // 5) 스크린 → 캔버스 로컬
         Vector2 localPos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             _canvas.transform as RectTransform,
@@ -60,11 +71,7 @@ public class UI_Tooltip : MonoBehaviour
             out localPos
         );
 
-        // anchoredPosition을 사용해 위치 설정
         tooltipRect.anchoredPosition = localPos + _offset;
-
-        _text.text = description;
-        _canvas.enabled = true;
     }
 
 }
