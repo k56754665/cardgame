@@ -1,0 +1,52 @@
+using System.Numerics;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class AnswerRoot : MonoBehaviour
+{
+    [SerializeField] TMP_Text equalText;
+    [SerializeField] TMP_Text integerText;
+    [SerializeField] TMP_Text denominatorText;
+    [SerializeField] TMP_Text numeratorText;
+    Image _fractionLine;
+
+    private void Start()
+    {
+        _fractionLine = GetComponentInChildren<Image>();
+        Managers.RoundManager.OnExpressionIntegerEvent += ShowInteger;
+        Managers.RoundManager.OnExpressionFractionEvent += ShowFraction;
+    }
+
+    private void ShowInteger(long num)
+    {
+        integerText.text = $"{num}";
+    }
+
+    private void HideInteger()
+    {
+        integerText.text = "";
+        equalText.text = "";
+    }
+
+    private void ShowFraction(BigInteger deno, BigInteger nume)
+    {
+        _fractionLine.enabled = true;
+        denominatorText.text = $"{deno}";
+        numeratorText.text = $"{nume}";
+    }
+
+    private void HideFraction()
+    {
+        _fractionLine.enabled = false;
+        denominatorText.text = "";
+        numeratorText.text = "";
+        equalText.text = "";
+    }
+
+    private void OnDestroy()
+    {
+        Managers.RoundManager.OnExpressionIntegerEvent -= ShowInteger;
+        Managers.RoundManager.OnExpressionFractionEvent -= ShowFraction;
+    }
+}

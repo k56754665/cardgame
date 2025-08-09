@@ -1,5 +1,7 @@
 using System;
 using System.Data;
+using System.Globalization;
+using System.Numerics;
 using UnityEngine;
 
 public class RoundManager
@@ -19,6 +21,8 @@ public class RoundManager
     public event Action<int> OnGoalNumChangeEvent;
     public event Action OnExpressionChangeEvent;
     public event Action OnExpressionClearEvent;
+    public event Action<long> OnExpressionIntegerEvent;
+    public event Action<BigInteger, BigInteger> OnExpressionFractionEvent;
 
     public void SetRandomGoalNum()
     {
@@ -43,21 +47,37 @@ public class RoundManager
         Debug.Log($"_expression: {_expression}");
         try
         {
-            string newExpression = _expression;
-
-            newExpression = newExpression
-                .Replace("¡¿", "*")  // '¡¿'¸¦ ³ª´°¼À ±âÈ£·Î º¯È¯
-                .Replace("¡À", "/"); // '¡À'¸¦ ³ª´°¼À ±âÈ£·Î º¯È¯
+            string newExpression = _expression
+                .Replace("¡¿", "*")  // °ö¼À ±âÈ£
+                .Replace("¡À", "/"); // ³ª´°¼À ±âÈ£
 
             DataTable table = new DataTable();
-            object value = table.Compute(newExpression, "");
-            _expression = Convert.ToString(value);
+            object raw = table.Compute(newExpression, "");
 
-            OnExpressionChangeEvent?.Invoke();
+            // DataTable.Compute´Â º¸Åë double·Î ¹ÝÈ¯µÊ
+            double value = Convert.ToDouble(raw, CultureInfo.InvariantCulture);
+
+            if (IsInteger(value))
+            {
+                long intValue = (long)Math.Round(value);
+                OnExpressionIntegerEvent?.Invoke(intValue);
+            }
+            else
+            {
+                Fraction frac = Fraction.FromDouble(value, maxDenominator: 100000, epsilon: 1e-12);
+
+                OnExpressionFractionEvent?.Invoke(frac.Num, frac.Den);
+            }
         }
         catch (Exception e)
         {
+            ClearExpression();
             Debug.LogError($"Expression calculation failed: {e.Message}");
         }
+    }
+
+    private bool IsInteger(double x, double epsilon = 1e-12)
+    {
+        return Math.Abs(x - Math.Round(x)) < epsilon;
     }
 }
