@@ -7,6 +7,7 @@ public static class TurnStateFactory
     {
         { TurnStateType.EnterRoundTurn, new EnterRoundTurn() },
         { TurnStateType.PlayRoundTurn, new PlayRoundTurn() },
+        { TurnStateType.EvaluateTurn, new EvaluateTurn() },
     };
 
     public static ITurnState GetState(TurnStateType type)

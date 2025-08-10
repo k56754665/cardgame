@@ -5,6 +5,6 @@ public class SubmitButton : MonoBehaviour, IPointerClickHandler
 {
     public void OnPointerClick(PointerEventData eventData)
     {
-        Managers.RoundManager.CalculateExpression();
+        Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.EvaluateTurn));
     }
 }

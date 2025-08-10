@@ -72,7 +72,7 @@ public class RoundManager
         OnExpressionClearEvent?.Invoke();
     }
 
-    public void CalculateExpression()
+    public bool CalculateExpression()
     {
         Debug.Log($"_expression: {_expression}");
         try
@@ -91,19 +91,28 @@ public class RoundManager
             {
                 long intValue = (long)Math.Round(value);
                 OnExpressionIntegerEvent?.Invoke(intValue);
+
+                if (intValue == _goalNum)
+                {
+                    return true;
+                }
             }
             else
             {
                 Fraction frac = Fraction.FromDouble(value, maxDenominator: 100000, epsilon: 1e-12);
 
                 OnExpressionFractionEvent?.Invoke(frac.Num, frac.Den);
+
+                // TODO : 분수일때 정답과 같은지 검사해요
             }
         }
         catch (Exception e)
         {
             ClearExpression();
             Debug.LogError($"Expression calculation failed: {e.Message}");
+            return false;
         }
+        return false;
     }
 
     public void ShowTooltipEvent(RectTransform rect, string description)
