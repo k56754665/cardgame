@@ -69,8 +69,8 @@ public class DeckManager
             newCount = DeckCount;
         }
 
-        List<Card> drawn = new List<Card>(count);
-        for (int i = 0; i < count; i++)
+        List<Card> drawn = new List<Card>(newCount);
+        for (int i = 0; i < newCount; i++)
         {
             Card c = DrawOneToHand();
             if (c == null) break;
@@ -104,14 +104,14 @@ public class DeckManager
         return removed;
     }
 
-    public void IncreaseNumberCardScore(int number, int amount = 1)
+    public void IncreaseNumberCardScore(int number, int amount = 2)
     {
         void Upgrade(List<Card> list)
         {
             foreach (Card c in list)
             {
                 if (c.number == number)
-                    c.score += amount;
+                    c.score *= amount;
             }
         }
 
@@ -189,20 +189,19 @@ public class DeckManager
     // 핸드에 있는 모든 카드를 버리지만, 드로우는 하지 않음
     public void DiscardAllFromHand()
     {
-        if (_hand.Count == 0) return;
+        int handCount = _hand.Count;
+        if (handCount == 0) return;
 
-        // 0 ~ HandCount-1까지 인덱스 리스트 생성
-        List<int> indices = new List<int>(_hand.Count);
-        for (int i = 0; i < _hand.Count; i++)
+        for (int i = handCount - 1; i >= 0; i--)
         {
-            indices.Add(i);
+            Card card = _hand[i];
+            _hand.RemoveAt(i);
+            _discard.Add(card);
+            OnCardDiscarded?.Invoke(card, i);
         }
 
-        // 기존 버리기 로직 재사용
-        DiscardFromHandByIndices(indices);
+        OnHandChangeAction?.Invoke();
     }
-
-
 
     public void PrintAllCards()
     {

@@ -14,7 +14,6 @@ public class ItemButton : MonoBehaviour, IPointerClickHandler
 
     public void SetItem(ShopItem shopItem)
     {
-        Debug.Log($"{shopItem.Description}");
         _shopItem = shopItem;
         _text.text = _shopItem.Description;
     }

@@ -32,7 +32,7 @@ public class RoundManager
             OnChangeSubmitChanceEvent?.Invoke(_submitChance);
         }
     }
-    private int _submitChance = 5;
+    private int _submitChance = 2;
 
     public int Score => _score;
     private int _score;

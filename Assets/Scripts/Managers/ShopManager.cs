@@ -81,9 +81,9 @@ public struct ShopItem
             switch (Type)
             {
                 case ShopItemType.OperatorScoreUp:
-                    return $"{GetOperatorSymbol(Operator)} 연산자 카드의 점수가 증가합니다.";
+                    return $"{GetOperatorSymbol(Operator)} 연산자 카드의 점수 +1";
                 case ShopItemType.NumberScoreUp:
-                    return $"숫자 {Number} 카드의 점수가 증가합니다.";
+                    return $"숫자 {Number} 카드의 점수 2배";
                 case ShopItemType.IncreaseHandSize:
                     return "핸드 개수가 증가합니다.";
                 case ShopItemType.IncreaseSubmitChance:
