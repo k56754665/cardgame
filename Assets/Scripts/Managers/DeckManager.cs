@@ -5,6 +5,8 @@ using System;
 public class DeckManager
 {
     public event Action OnHandChangeAction;
+    public event Action<Card, int> OnCardDrawn;
+    public event Action<Card, int> OnCardDiscarded;
 
     List<Card> _hand = new();
     List<Card> _deck = new ();
@@ -54,6 +56,7 @@ public class DeckManager
         Card c = _deck[^1];
         _deck.RemoveAt(_deck.Count - 1);
         _hand.Add(c);
+        OnCardDrawn?.Invoke(c, _hand.Count - 1);
         return c;
     }
 
@@ -95,7 +98,9 @@ public class DeckManager
             _hand.RemoveAt(i);
             _discard.Add(c);
             removed.Add(c);
+            OnCardDiscarded?.Invoke(c, i);
         }
+        OnHandChangeAction?.Invoke();
         return removed;
     }
 
@@ -119,6 +124,7 @@ public class DeckManager
         for (int i = drawn.Count - 1; i >= 0; i--)
         {
             _hand.Add(drawn[i]);
+            OnCardDrawn?.Invoke(drawn[i], _hand.Count - 1);
         }
 
         if (DeckCount == 0)

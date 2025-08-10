@@ -18,6 +18,9 @@ public class Managers : MonoBehaviour
     public static DeckManager DeckManager => _deckManager;
     static DeckManager _deckManager = new DeckManager();
 
+    public static ShopManager ShopManager => _shopManager;
+    static ShopManager _shopManager = new ShopManager();
+
     void Awake()
     {
         if (_instance == null)

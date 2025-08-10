@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class ShopManager
+{
+    System.Random _rng = new();
+    public List<ShopItem> CurrentItems { get; private set; } = new();
+    public event Action OnOpenShopEvent;
+    public event Action OnCloseShopEvent;
+
+    public void OpenShop()
+    {
+        GenerateItems();
+        OnOpenShopEvent?.Invoke();
+    }
+
+    public void CloseShop()
+    {
+        OnCloseShopEvent?.Invoke();
+    }
+
+    private void GenerateItems()
+    {
+        CurrentItems.Clear();
+        // one operator score upgrade
+        CurrentItems.Add(new ShopItem { Type = ShopItemType.OperatorScoreUp });
+
+        // three number card score upgrades with unique numbers
+        HashSet<int> used = new();
+        for (int i = 0; i < 3; i++)
+        {
+            int num;
+            do { num = _rng.Next(1, 10); } while (!used.Add(num));
+            CurrentItems.Add(new ShopItem { Type = ShopItemType.NumberScoreUp, Number = num });
+        }
+
+        // one hand size or submit chance upgrade
+        ShopItemType extra = _rng.Next(0, 2) == 0 ? ShopItemType.IncreaseHandSize : ShopItemType.IncreaseSubmitChance;
+        CurrentItems.Add(new ShopItem { Type = extra });
+    }
+}
+
+public enum ShopItemType
+{
+    OperatorScoreUp,
+    NumberScoreUp,
+    IncreaseHandSize,
+    IncreaseSubmitChance,
+}
+
+public struct ShopItem
+{
+    public ShopItemType Type;
+    public int Number;
+
+    public string Description
+    {
+        get
+        {
+            switch (Type)
+            {
+                case ShopItemType.OperatorScoreUp:
+                    return "연산자 카드의 점수가 증가합니다.";
+                case ShopItemType.NumberScoreUp:
+                    return $"숫자 {Number} 카드의 점수가 증가합니다.";
+                case ShopItemType.IncreaseHandSize:
+                    return "핸드 개수가 증가합니다.";
+                case ShopItemType.IncreaseSubmitChance:
+                    return "제출 기회가 증가합니다.";
+                default:
+                    return string.Empty;
+            }
+        }
+    }
+
+    public override string ToString()
+    {
+        return Description;
+    }
+}

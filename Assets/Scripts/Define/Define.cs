@@ -7,5 +7,6 @@ public static class Define
         EnterRoundTurn,
         PlayRoundTurn,
         EvaluateTurn,
+        ShopTurn,
     }
 }

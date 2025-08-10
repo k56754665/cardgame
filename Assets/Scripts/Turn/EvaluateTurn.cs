@@ -14,6 +14,10 @@ public class EvaluateTurn : ITurnState
             {
                 // 점수가 목표 점수보다 크면
                 // 상점 턴으로 가기
+                Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.ShopTurn));
+
+                // 계산기 비우기
+                //Managers.RoundManager.ClearExpression();
             }
             else
             {
@@ -22,6 +26,9 @@ public class EvaluateTurn : ITurnState
                 // 플레이 턴으로 가기
                 Managers.RoundManager.SetRandomGoalNum();
                 Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.PlayRoundTurn));
+
+                // 계산기 비우기
+                //Managers.RoundManager.ClearExpression();
             }   
         }
         else
@@ -30,10 +37,9 @@ public class EvaluateTurn : ITurnState
             Managers.RoundManager.SubmitChance--;
 
             // 계산기 비우기
-            Managers.RoundManager.ClearExpression();
+            //Managers.RoundManager.ClearExpression();
 
             // 제출한 손패 버리고 새로 드로우
-
             if (Managers.RoundManager.SubmitChance > 0)
             {
                 // 플레이 턴으로 가기

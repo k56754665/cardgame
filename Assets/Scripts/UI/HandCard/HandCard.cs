@@ -27,6 +27,11 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         Managers.RoundManager.OnExpressionClearEvent -= DeselectCard;
     }
 
+    public void SetHandIndex(int handIndex)
+    {
+        HandIndex = handIndex;
+    }
+
     public void SetCard(Card card, int handIndex)
     {
         _cardData = card;

@@ -1,0 +1,38 @@
+using UnityEngine;
+
+public class UI_Shop : MonoBehaviour
+{
+    Canvas _canvas;
+    [SerializeField] Transform _root;
+    GameObject _itemButtonPrefab;
+
+    private void Start()
+    {
+        _canvas = GetComponent<Canvas>();
+        _canvas.enabled = false;
+        _itemButtonPrefab = Resources.Load<GameObject>("ItemButton/ItemButton");
+        Managers.ShopManager.OnOpenShopEvent += HandleOpenShop;
+        Managers.ShopManager.OnCloseShopEvent += HandleCloseShop;
+    }
+
+    private void HandleOpenShop()
+    {
+        foreach (ShopItem item in Managers.ShopManager.CurrentItems)
+        {
+            Instantiate(_itemButtonPrefab, _root).GetComponent<ItemButton>().SetItem(item);
+        }
+        _canvas.enabled = true;
+    }
+
+    private void HandleCloseShop()
+    {
+        _canvas.enabled = false;
+    }
+
+    private void OnDestroy()
+    {
+        Managers.ShopManager.OnOpenShopEvent -= HandleOpenShop;
+        Managers.ShopManager.OnCloseShopEvent -= HandleCloseShop;
+
+    }
+}
