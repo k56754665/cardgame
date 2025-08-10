@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class EvaluateTurn : ITurnState
@@ -7,6 +7,7 @@ public class EvaluateTurn : ITurnState
     {
         bool isAnswer = false;
         isAnswer = Managers.RoundManager.CalculateExpression();
+        Managers.RoundManager.DiscardAndDrawSelectedCards();
         if (isAnswer)
         {
             if (Managers.RoundManager.Score >= Managers.RoundManager.GoalPoint)
@@ -27,6 +28,9 @@ public class EvaluateTurn : ITurnState
         {
             // 틀렸으면 제출 기회 -1
             Managers.RoundManager.SubmitChance--;
+
+            // 계산기 비우기
+            Managers.RoundManager.ClearExpression();
 
             // 제출한 손패 버리고 새로 드로우
 

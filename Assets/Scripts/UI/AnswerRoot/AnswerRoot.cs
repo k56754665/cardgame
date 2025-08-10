@@ -20,30 +20,28 @@ public class AnswerRoot : MonoBehaviour
 
     private void ShowInteger(long num)
     {
+        HideAll();
         equalText.text = "=";
         integerText.text = $"{num}";
     }
 
-    private void HideInteger()
+    private void HideAll()
     {
         integerText.text = "";
+        equalText.text = "";
+        _fractionLine.enabled = false;
+        denominatorText.text = "";
+        numeratorText.text = "";
         equalText.text = "";
     }
 
     private void ShowFraction(BigInteger num, BigInteger den)
     {
+        HideAll();
         _fractionLine.enabled = true;
         equalText.text = "=";
         denominatorText.text = $"{den}";
         numeratorText.text = $"{num}";
-    }
-
-    private void HideFraction()
-    {
-        _fractionLine.enabled = false;
-        denominatorText.text = "";
-        numeratorText.text = "";
-        equalText.text = "";
     }
 
     private void OnDestroy()

@@ -15,6 +15,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     [SerializeField] DOTweenAnimation _cardShakeTween;
 
     bool _isSelected;
+    public int HandIndex { get; private set; }
 
     private void Start()
     {
@@ -26,9 +27,10 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         Managers.RoundManager.OnExpressionClearEvent -= DeselectCard;
     }
 
-    public void SetCard(Card card)
+    public void SetCard(Card card, int handIndex)
     {
         _cardData = card;
+        HandIndex = handIndex;
         _text.text = $"{card.number}";
     }
 
@@ -62,7 +64,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _isSelected = true;
         CardUp();
         _cardShakeTween?.DORestart();
-        Managers.RoundManager.AddNumberCard(_cardData);
+        Managers.RoundManager.AddNumberCard(_cardData, HandIndex);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

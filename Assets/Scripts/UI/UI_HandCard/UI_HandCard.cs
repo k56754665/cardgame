@@ -29,10 +29,11 @@ public class UI_HandCard : MonoBehaviour
 
         Managers.DeckManager.PrintAllCards();
 
-        foreach (Card card in Managers.DeckManager.Hand)
+        for (int i = 0; i < Managers.DeckManager.Hand.Count; i++)
         {
+            Card card = Managers.DeckManager.Hand[i];
             GameObject go = Instantiate(_handCardPrefab, _handCardRoot);
-            go.GetComponentInChildren<HandCard>().SetCard(card);
+            go.GetComponentInChildren<HandCard>().SetCard(card, i);
         }
     }
 

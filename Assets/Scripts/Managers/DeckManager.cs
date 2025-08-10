@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System;
 
@@ -98,6 +98,37 @@ public class DeckManager
         }
         return removed;
     }
+
+    public void DrawToHandRightToLeft(int count)
+    {
+        int newCount = count;
+        if (DeckCount < count)
+        {
+            newCount = DeckCount;
+        }
+
+        List<Card> drawn = new List<Card>(newCount);
+        for (int i = 0; i < newCount; i++)
+        {
+            if (_deck.Count == 0) break;
+            Card c = _deck[^1];
+            _deck.RemoveAt(_deck.Count - 1);
+            drawn.Add(c);
+        }
+
+        for (int i = drawn.Count - 1; i >= 0; i--)
+        {
+            _hand.Add(drawn[i]);
+        }
+
+        if (DeckCount == 0)
+        {
+            RecycleIfNeeded(); // 덱 없으면 섞기
+        }
+
+        OnHandChangeAction?.Invoke();
+    }
+
 
     // 더 이상 드로우할 게 없을 때: 버림을 덱으로 옮기고 셔플
     public void RecycleIfNeeded()

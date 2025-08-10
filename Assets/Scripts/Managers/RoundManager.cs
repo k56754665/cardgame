@@ -45,6 +45,7 @@ public class RoundManager
     }
 
     List<ExpressionCard> _expressionCards = new();
+    List<int> _selectedHandIndices = new();
 
     public event Action OnExpressionChangeEvent;
     public event Action OnExpressionClearEvent;
@@ -75,12 +76,14 @@ public class RoundManager
         OnChangeGoalPointEvent?.Invoke(_goalPoint);
     }
 
-    public void AddNumberCard(Card card)
+    public void AddNumberCard(Card card, int handIndex)
     {
         _expressionCards.Add(new ExpressionCard { Type = ExpressionCardType.Number, Score = card.score });
         _expression += card.number.ToString();
+        _selectedHandIndices.Add(handIndex);
         OnExpressionChangeEvent?.Invoke();
     }
+
 
     public void AddOperatorCard(OperatorCard card)
     {
@@ -89,11 +92,22 @@ public class RoundManager
         OnExpressionChangeEvent?.Invoke();
     }
 
+    public void DiscardAndDrawSelectedCards()
+    {
+        if (_selectedHandIndices.Count > 0)
+        {
+            Managers.DeckManager.DiscardFromHandByIndices(_selectedHandIndices);
+            Managers.DeckManager.DrawToHandRightToLeft(_selectedHandIndices.Count);
+        }
+        ClearExpression();
+    }
+
 
     public void ClearExpression()
     {
         _expression = "";
         _expressionCards.Clear();
+        _selectedHandIndices.Clear();
         OnExpressionClearEvent?.Invoke();
     }
 
