@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static Define;
 
 public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, ITooltip
 {
@@ -36,7 +37,20 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         _cardData = card;
         HandIndex = handIndex;
-        _text.text = $"{card.number}";
+        _text.text = card.score > card.number ? $"{card.number}★" : $"{card.number}";
+        _text.color = GetSuitColor(card.suit);
+    }
+
+    Color GetSuitColor(CardSuit suit)
+    {
+        return suit switch
+        {
+            CardSuit.Suit1 => Color.white,
+            CardSuit.Suit2 => Color.red,
+            CardSuit.Suit3 => Color.blue,
+            CardSuit.Suit4 => Color.green,
+            _ => Color.white,
+        };
     }
 
     private void CardUp()

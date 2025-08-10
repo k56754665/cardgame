@@ -4,6 +4,7 @@ using System.Data;
 using System.Globalization;
 using System.Numerics;
 using UnityEngine;
+using static Define;
 
 public class RoundManager
 {
@@ -46,6 +47,14 @@ public class RoundManager
 
     List<ExpressionCard> _expressionCards = new();
     List<int> _selectedHandIndices = new();
+
+    Dictionary<OperatorType, int> _operatorScores = new()
+    {
+        { OperatorType.Add, 2 },
+        { OperatorType.Subtract, 2 },
+        { OperatorType.Multiply, 2 },
+        { OperatorType.Divide, 2 },
+    };
 
     public event Action OnExpressionChangeEvent;
     public event Action OnExpressionClearEvent;
@@ -206,5 +215,10 @@ public class RoundManager
     private bool IsInteger(double x, double epsilon = 1e-12)
     {
         return Math.Abs(x - Math.Round(x)) < epsilon;
+    }
+
+    public int GetOperatorScore(OperatorType type)
+    {
+        return _operatorScores[type];
     }
 }

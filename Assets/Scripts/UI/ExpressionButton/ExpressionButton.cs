@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using static Define;
 
 public class ExpressionButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ITooltip
 {
@@ -11,10 +12,20 @@ public class ExpressionButton : MonoBehaviour, IPointerClickHandler, IPointerEnt
     void Start()
     {
         _expressionString = GetComponentInChildren<TMP_Text>().text;
+        OperatorType type = _expressionString switch
+        {
+            "+" => OperatorType.Add,
+            "-" => OperatorType.Subtract,
+            "×" => OperatorType.Multiply,
+            "÷" => OperatorType.Divide,
+            _ => OperatorType.Add,
+        };
+
         _operatorCardData = new OperatorCard
         {
+            type = type,
             symbol = _expressionString,
-            score = 2,
+            score = Managers.RoundManager.GetOperatorScore(type),
         };
     }
 

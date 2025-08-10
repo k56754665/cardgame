@@ -1,6 +1,7 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
+using static Define;
 
 public class DeckManager
 {
@@ -33,7 +34,7 @@ public class DeckManager
         {
             for (int j = 1; j < 10; j++)
             {
-                _deck.Add(MakeCard(j));
+                _deck.Add(MakeCard(j, (CardSuit)i));
             }
         }
 
@@ -146,7 +147,7 @@ public class DeckManager
         Shuffle();
     }
 
-    private Card MakeCard(int cardNum, int cardScore = -1)
+    private Card MakeCard(int cardNum, CardSuit suit, int cardScore = -1)
     {
         int newScore = cardScore;
 
@@ -163,10 +164,12 @@ public class DeckManager
         {
             number = cardNum,
             score = newScore,
+            suit = suit,
         };
 
         return newCard;
     }
+
 
     public void PrintAllCards()
     {

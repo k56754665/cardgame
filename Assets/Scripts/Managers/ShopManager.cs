@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System;
+using static Define;
 
 public class ShopManager
 {
@@ -24,7 +24,7 @@ public class ShopManager
     {
         CurrentItems.Clear();
         // one operator score upgrade
-        CurrentItems.Add(new ShopItem { Type = ShopItemType.OperatorScoreUp });
+        CurrentItems.Add(new ShopItem { Type = ShopItemType.OperatorScoreUp, Operator = (OperatorType)_rng.Next(0, 4) });
 
         // three number card score upgrades with unique numbers
         HashSet<int> used = new();
@@ -53,6 +53,7 @@ public struct ShopItem
 {
     public ShopItemType Type;
     public int Number;
+    public OperatorType Operator;
 
     public string Description
     {
@@ -61,7 +62,7 @@ public struct ShopItem
             switch (Type)
             {
                 case ShopItemType.OperatorScoreUp:
-                    return "연산자 카드의 점수가 증가합니다.";
+                    return $"{GetOperatorSymbol(Operator)} 연산자 카드의 점수가 증가합니다.";
                 case ShopItemType.NumberScoreUp:
                     return $"숫자 {Number} 카드의 점수가 증가합니다.";
                 case ShopItemType.IncreaseHandSize:
@@ -77,5 +78,17 @@ public struct ShopItem
     public override string ToString()
     {
         return Description;
+    }
+
+    static string GetOperatorSymbol(OperatorType type)
+    {
+        return type switch
+        {
+            OperatorType.Add => "+",
+            OperatorType.Subtract => "-",
+            OperatorType.Multiply => "×",
+            OperatorType.Divide => "÷",
+            _ => "",
+        };
     }
 }
