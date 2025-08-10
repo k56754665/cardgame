@@ -40,12 +40,14 @@ public class ExpressionButton : MonoBehaviour, IPointerClickHandler, IPointerEnt
         if (Managers.RoundManager.TotalText == Managers.RoundManager.Expression.Length)
             return;
 
+        _operatorCardData.score = Managers.RoundManager.GetOperatorScore(_operatorCardData.type);
         Managers.RoundManager.AddOperatorCard(_operatorCardData);
     }
 
     public void ShowTooltip()
     {
-        Managers.RoundManager.ShowTooltipEvent((RectTransform)transform, $"점수\n×{_operatorCardData.score}");
+        int score = Managers.RoundManager.GetOperatorScore(_operatorCardData.type);
+        Managers.RoundManager.ShowTooltipEvent((RectTransform)transform, $"점수\n×{score}");
     }
 
     public void HideTooltip()

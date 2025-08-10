@@ -101,9 +101,13 @@ public class RoundManager
     public void IncreaseOperatorScore(OperatorType type, int amount = 1)
     {
         if (_operatorScores.ContainsKey(type))
+        {
             _operatorScores[type] += amount;
+        }
         else
+        {
             _operatorScores[type] = amount;
+        }
     }
 
     public void AddOperatorCard(OperatorCard card)

@@ -2,8 +2,6 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using static Define;
 
 public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, ITooltip
 {
@@ -26,7 +24,9 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     void OnDestroy()
     {
-        DOTween.Kill(transform);
+        _cardUpTween.DOKill();
+        _cardColorTween.DOKill();
+        _cardShakeTween.DOKill();
         Managers.RoundManager.OnExpressionClearEvent -= DeselectCard;
     }
 
