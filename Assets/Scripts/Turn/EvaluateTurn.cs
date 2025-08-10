@@ -12,23 +12,23 @@ public class EvaluateTurn : ITurnState
         {
             if (Managers.RoundManager.Score >= Managers.RoundManager.GoalPoint)
             {
+                Managers.DeckManager.DiscardAllFromHand();
+
+                // 계산기 비우기
+                Managers.RoundManager.ClearExpression();
+
                 // 점수가 목표 점수보다 크면
                 // 상점 턴으로 가기
                 Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.ShopTurn));
-
-                // 계산기 비우기
-                //Managers.RoundManager.ClearExpression();
             }
             else
             {
                 // 점수가 목표 점수보다 작으면
-                // 제출한 손패 버리고 새로 드로우
-                // 플레이 턴으로 가기
                 Managers.RoundManager.SetRandomGoalNum();
-                Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.PlayRoundTurn));
-
                 // 계산기 비우기
-                //Managers.RoundManager.ClearExpression();
+                Managers.RoundManager.ClearExpression();
+                // 플레이 턴으로 가기
+                Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.PlayRoundTurn));
             }   
         }
         else
@@ -37,7 +37,7 @@ public class EvaluateTurn : ITurnState
             Managers.RoundManager.SubmitChance--;
 
             // 계산기 비우기
-            //Managers.RoundManager.ClearExpression();
+            Managers.RoundManager.ClearExpression();
 
             // 제출한 손패 버리고 새로 드로우
             if (Managers.RoundManager.SubmitChance > 0)
@@ -48,9 +48,9 @@ public class EvaluateTurn : ITurnState
             else
             {
                 // 게임오버
+                Managers.DeckManager.DiscardAllFromHand();
 
-                // 현재 활성화된 씬의 이름을 가져와 다시 로드
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                Managers.GameManager.GameOver();
             }
         }
     }

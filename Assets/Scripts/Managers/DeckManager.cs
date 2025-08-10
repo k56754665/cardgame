@@ -168,6 +168,23 @@ public class DeckManager
         return newCard;
     }
 
+    // 핸드에 있는 모든 카드를 버리지만, 드로우는 하지 않음
+    public void DiscardAllFromHand()
+    {
+        if (_hand.Count == 0) return;
+
+        // 0 ~ HandCount-1까지 인덱스 리스트 생성
+        List<int> indices = new List<int>(_hand.Count);
+        for (int i = 0; i < _hand.Count; i++)
+        {
+            indices.Add(i);
+        }
+
+        // 기존 버리기 로직 재사용
+        DiscardFromHandByIndices(indices);
+    }
+
+
 
     public void PrintAllCards()
     {

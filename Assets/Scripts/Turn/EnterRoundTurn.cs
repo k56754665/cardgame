@@ -8,7 +8,6 @@ public class EnterRoundTurn : ITurnState
         Managers.RoundManager.ClearExpression();
         Managers.RoundManager.SetRandomGoalNum();
         Managers.RoundManager.SetGoalPoint();
-        Managers.DeckManager.DiscardFromHandByIndices(Enumerable.Range(0, Managers.DeckManager.HandCount));
         Managers.DeckManager.DrawToHand(Managers.RoundManager.HandSize);
         //Managers.TurnManager.ChangeTurn();
     }
