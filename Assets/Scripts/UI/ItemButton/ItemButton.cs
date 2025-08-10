@@ -21,7 +21,7 @@ public class ItemButton : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // TODO : get item effect
+        Managers.ShopManager.ApplyItem(_shopItem);
         Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.EnterRoundTurn));
     }
 }

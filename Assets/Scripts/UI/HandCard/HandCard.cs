@@ -26,6 +26,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     void OnDestroy()
     {
+        DOTween.Kill(transform);
         Managers.RoundManager.OnExpressionClearEvent -= DeselectCard;
     }
 

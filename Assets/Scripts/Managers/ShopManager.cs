@@ -20,6 +20,25 @@ public class ShopManager
         OnCloseShopEvent?.Invoke();
     }
 
+    public void ApplyItem(ShopItem item)
+    {
+        switch (item.Type)
+        {
+            case ShopItemType.OperatorScoreUp:
+                Managers.RoundManager.IncreaseOperatorScore(item.Operator);
+                break;
+            case ShopItemType.NumberScoreUp:
+                Managers.DeckManager.IncreaseNumberCardScore(item.Number);
+                break;
+            case ShopItemType.IncreaseHandSize:
+                Managers.RoundManager.IncreaseHandSize();
+                break;
+            case ShopItemType.IncreaseSubmitChance:
+                Managers.RoundManager.SubmitChance += 1;
+                break;
+        }
+    }
+
     private void GenerateItems()
     {
         CurrentItems.Clear();

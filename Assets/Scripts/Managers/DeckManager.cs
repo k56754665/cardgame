@@ -104,6 +104,24 @@ public class DeckManager
         return removed;
     }
 
+    public void IncreaseNumberCardScore(int number, int amount = 1)
+    {
+        void Upgrade(List<Card> list)
+        {
+            foreach (Card c in list)
+            {
+                if (c.number == number)
+                    c.score += amount;
+            }
+        }
+
+        Upgrade(_deck);
+        Upgrade(_hand);
+        Upgrade(_discard);
+
+        OnHandChangeAction?.Invoke();
+    }
+
     public void DrawToHandRightToLeft(int count)
     {
         int newCount = count;

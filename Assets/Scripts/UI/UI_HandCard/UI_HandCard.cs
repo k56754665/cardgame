@@ -91,10 +91,12 @@ public class UI_HandCard : MonoBehaviour
         // 필요하면 페이드 추가: cg.DOFade(0f, 0.25f);
         inner.DOAnchorPos(inner.anchoredPosition + new Vector2(0f, -200f), 0.25f)
              .SetEase(Ease.InBack)
+             .SetLink(slotGO, LinkBehaviour.KillOnDestroy)
              .OnComplete(() =>
              {
                  // 슬롯 제거(이 시점에 레이아웃이 한 칸 줄어듦)
                  _handCards.RemoveAt(index);
+                 DOTween.Kill(slotGO, complete: false);
                  Destroy(slotGO);
 
                  // 제거 전 위치(startMap) -> 제거 후 레이아웃 타겟으로 부드럽게 수축
@@ -159,6 +161,7 @@ public class UI_HandCard : MonoBehaviour
     /// </summary>
     void AnimateToCurrentLayout(float moveDuration, Ease ease, List<GameObject> newCardsSlideIn = null)
     {
+        _handCards.RemoveAll(go => go == null);
         if (_handCards.Count == 0)
         {
             _animating = false;
@@ -173,7 +176,9 @@ public class UI_HandCard : MonoBehaviour
         List<Vector2> startPos = new();
         foreach (var go in _handCards)
         {
+            if (go == null) continue;
             var rt = go.GetComponent<RectTransform>();
+            if (rt == null) continue;
             rects.Add(rt);
             startPos.Add(rt.anchoredPosition);
         }
@@ -181,6 +186,7 @@ public class UI_HandCard : MonoBehaviour
         // 2) 레이아웃 켜고 타겟 위치 산출
         foreach (var rt in rects)
         {
+            if (rt == null) continue;
             var le = rt.GetComponent<LayoutElement>() ?? rt.gameObject.AddComponent<LayoutElement>();
             le.ignoreLayout = false;
         }
@@ -188,7 +194,10 @@ public class UI_HandCard : MonoBehaviour
 
         List<Vector2> targetPos = new();
         foreach (var rt in rects)
+        {
+            if (rt == null) continue;
             targetPos.Add(rt.anchoredPosition);
+        }
 
         // 3) 새 슬롯들은 타겟에서 우측으로 민 위치를 시작점으로 덮어쓰기
         if (newCardsSlideIn != null && newCardsSlideIn.Count > 0)
@@ -213,21 +222,31 @@ public class UI_HandCard : MonoBehaviour
         // 4) 레이아웃 영향 차단 + 시작점 적용
         foreach (var rt in rects)
         {
+            if (rt == null) continue;
             var le = rt.GetComponent<LayoutElement>();
             le.ignoreLayout = true;
         }
         for (int i = 0; i < rects.Count; i++)
+        {
+            if (rects[i] == null) continue;
             rects[i].anchoredPosition = startPos[i];
+        }
 
         // 5) 타겟으로 보간
-        Sequence seq = DOTween.Sequence();
+        Sequence seq = DOTween.Sequence().SetLink(gameObject, LinkBehaviour.KillOnDestroy);
         for (int i = 0; i < rects.Count; i++)
-            seq.Join(rects[i].DOAnchorPos(targetPos[i], moveDuration).SetEase(ease));
+            seq.Join(
+                rects[i]
+                    .DOAnchorPos(targetPos[i], moveDuration)
+                    .SetEase(ease)
+                    .SetLink(rects[i].gameObject, LinkBehaviour.KillOnDestroy)
+            );
 
         seq.OnComplete(() =>
         {
             foreach (var rt in rects)
             {
+                if (rt == null) continue;
                 var le = rt.GetComponent<LayoutElement>();
                 if (le != null) le.ignoreLayout = false;
             }
@@ -243,6 +262,7 @@ public class UI_HandCard : MonoBehaviour
     /// </summary>
     void AnimateToCurrentLayoutUsingSavedStarts(float moveDuration, Ease ease, Dictionary<RectTransform, Vector2> savedStarts)
     {
+        _handCards.RemoveAll(go => go == null);
         if (_handCards.Count == 0)
         {
             _animating = false;
@@ -255,11 +275,17 @@ public class UI_HandCard : MonoBehaviour
         // 남아있는 슬롯들
         List<RectTransform> rects = new();
         foreach (var go in _handCards)
-            rects.Add(go.GetComponent<RectTransform>());
+        {
+            if (go == null) continue;
+            var rt = go.GetComponent<RectTransform>();
+            if (rt == null) continue;
+            rects.Add(rt);
+        }
 
         // 1) 레이아웃 켜서 목표 위치 산출(슬롯 제거 이후의 타겟)
         foreach (var rt in rects)
         {
+            if (rt == null) continue;
             var le = rt.GetComponent<LayoutElement>() ?? rt.gameObject.AddComponent<LayoutElement>();
             le.ignoreLayout = false;
         }
@@ -267,16 +293,21 @@ public class UI_HandCard : MonoBehaviour
 
         List<Vector2> targetPos = new();
         foreach (var rt in rects)
+        {
+            if (rt == null) continue;
             targetPos.Add(rt.anchoredPosition);
+        }
 
         // 2) 다시 레이아웃 영향 차단 + 제거 전 시작좌표로 복원
         foreach (var rt in rects)
         {
+            if (rt == null) continue;
             var le = rt.GetComponent<LayoutElement>();
             le.ignoreLayout = true;
         }
         for (int i = 0; i < rects.Count; i++)
         {
+            if (rects[i] == null) continue;
             Vector2 start;
             if (!savedStarts.TryGetValue(rects[i], out start))
                 start = rects[i].anchoredPosition;
@@ -284,14 +315,21 @@ public class UI_HandCard : MonoBehaviour
         }
 
         // 3) 타겟으로 보간
-        Sequence seq = DOTween.Sequence();
+        Sequence seq = DOTween.Sequence().SetLink(gameObject, LinkBehaviour.KillOnDestroy);
         for (int i = 0; i < rects.Count; i++)
-            seq.Join(rects[i].DOAnchorPos(targetPos[i], moveDuration).SetEase(ease));
+            seq.Join(
+                rects[i]
+                    .DOAnchorPos(targetPos[i], moveDuration)
+                    .SetEase(ease)
+                    .SetLink(rects[i].gameObject, LinkBehaviour.KillOnDestroy)
+            );
+
 
         seq.OnComplete(() =>
         {
             foreach (var rt in rects)
             {
+                if (rt == null) continue;
                 var le = rt.GetComponent<LayoutElement>();
                 if (le != null) le.ignoreLayout = false;
             }
