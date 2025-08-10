@@ -7,13 +7,14 @@ public class ItemButton : MonoBehaviour, IPointerClickHandler
     TMP_Text _text;
     ShopItem _shopItem;
 
-    void Start()
+    void Awake()
     {
         _text = GetComponentInChildren<TMP_Text>();
     }
 
     public void SetItem(ShopItem shopItem)
     {
+        Debug.Log($"{shopItem.Description}");
         _shopItem = shopItem;
         _text.text = _shopItem.Description;
     }

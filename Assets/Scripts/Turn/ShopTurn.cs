@@ -9,11 +9,11 @@ public class ShopTurn : ITurnState
 
     public void ExitState()
     {
-
+        Managers.ShopManager.CloseShop();
     }
 
     public void UpdateState()
     {
-        Managers.ShopManager.CloseShop();
+
     }
 }

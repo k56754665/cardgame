@@ -19,7 +19,8 @@ public class UI_Shop : MonoBehaviour
     {
         foreach (ShopItem item in Managers.ShopManager.CurrentItems)
         {
-            Instantiate(_itemButtonPrefab, _root).GetComponent<ItemButton>().SetItem(item);
+            ItemButton itemButton = Instantiate(_itemButtonPrefab, _root).GetComponent<ItemButton>();
+            itemButton.SetItem(item);
         }
         _canvas.enabled = true;
     }
