@@ -39,7 +39,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         _cardData = card;
         HandIndex = handIndex;
-        _text.text = card.score > card.number ? $"{card.number}★" : $"{card.number}";
+        _text.text = card.score > card.number ? $"{card.number}☻" : $"{card.number}";
     }
 
     void CardUp()

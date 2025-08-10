@@ -94,15 +94,20 @@ public class UI_HandCard : MonoBehaviour
              .SetLink(slotGO, LinkBehaviour.KillOnDestroy)
              .OnComplete(() =>
              {
-                 // 슬롯 제거(이 시점에 레이아웃이 한 칸 줄어듦)
-                 _handCards.RemoveAt(index);
-                 DOTween.Kill(slotGO, complete: false);
-                 Destroy(slotGO);
+                 try
+                 {
+                     // 슬롯 제거(이 시점에 레이아웃이 한 칸 줄어듦)
+                     _handCards.Remove(slotGO);
+                     DOTween.Kill(slotGO, complete: false);
+                     Destroy(slotGO);
 
-                 // 제거 전 위치(startMap) -> 제거 후 레이아웃 타겟으로 부드럽게 수축
-                 AnimateToCurrentLayoutUsingSavedStarts(0.22f, Ease.OutCubic, startMap);
-
-                 _discardAnimations--;
+                     // 제거 전 위치(startMap) -> 제거 후 레이아웃 타겟으로 부드럽게 수축
+                     AnimateToCurrentLayoutUsingSavedStarts(0.22f, Ease.OutCubic, startMap);
+                 }
+                 finally
+                 {
+                     _discardAnimations--;
+                 }
              });
     }
 
