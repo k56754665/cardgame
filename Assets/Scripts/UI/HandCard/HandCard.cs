@@ -62,7 +62,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _isSelected = true;
         CardUp();
         _cardShakeTween?.DORestart();
-        Managers.RoundManager.AddExpression(_cardData.number.ToString());
+        Managers.RoundManager.AddNumberCard(_cardData);
     }
 
     public void OnPointerEnter(PointerEventData eventData)

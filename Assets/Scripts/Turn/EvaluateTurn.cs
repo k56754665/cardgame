@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class EvaluateTurn : ITurnState
@@ -9,32 +9,37 @@ public class EvaluateTurn : ITurnState
         isAnswer = Managers.RoundManager.CalculateExpression();
         if (isAnswer)
         {
-            // Á¤´äÀ» ¸ÂÃè´Ù¸é Á¡¼ö °è»ê
-
-            // Á¡¼ö°¡ ¸ñÇ¥ Á¡¼öº¸´Ù ÀÛÀ¸¸é
-            // Á¦ÃâÇÑ ¼ÕÆĞ ¹ö¸®°í »õ·Î µå·Î¿ì
-            // ÇÃ·¹ÀÌ ÅÏÀ¸·Î °¡±â
-
-            // Á¡¼ö°¡ ¸ñÇ¥ Á¡¼öº¸´Ù Å©¸é
-            // »óÁ¡ ÅÏÀ¸·Î °¡±â
+            if (Managers.RoundManager.Score >= Managers.RoundManager.GoalPoint)
+            {
+                // ì ìˆ˜ê°€ ëª©í‘œ ì ìˆ˜ë³´ë‹¤ í¬ë©´
+                // ìƒì  í„´ìœ¼ë¡œ ê°€ê¸°
+            }
+            else
+            {
+                // ì ìˆ˜ê°€ ëª©í‘œ ì ìˆ˜ë³´ë‹¤ ì‘ìœ¼ë©´
+                // ì œì¶œí•œ ì†íŒ¨ ë²„ë¦¬ê³  ìƒˆë¡œ ë“œë¡œìš°
+                // í”Œë ˆì´ í„´ìœ¼ë¡œ ê°€ê¸°
+                Managers.RoundManager.SetRandomGoalNum();
+                Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.PlayRoundTurn));
+            }   
         }
         else
         {
-            // Æ²·ÈÀ¸¸é Á¦Ãâ ±âÈ¸ -1
+            // í‹€ë ¸ìœ¼ë©´ ì œì¶œ ê¸°íšŒ -1
             Managers.RoundManager.SubmitChance--;
 
-            // Á¦ÃâÇÑ ¼ÕÆĞ ¹ö¸®°í »õ·Î µå·Î¿ì
+            // ì œì¶œí•œ ì†íŒ¨ ë²„ë¦¬ê³  ìƒˆë¡œ ë“œë¡œìš°
 
             if (Managers.RoundManager.SubmitChance > 0)
             {
-                // ÇÃ·¹ÀÌ ÅÏÀ¸·Î °¡±â
+                // í”Œë ˆì´ í„´ìœ¼ë¡œ ê°€ê¸°
                 Managers.TurnManager.ChangeTurn(TurnStateFactory.GetState(Define.TurnStateType.PlayRoundTurn));
             }
             else
             {
-                // °ÔÀÓ¿À¹ö
+                // ê²Œì„ì˜¤ë²„
 
-                // ÇöÀç È°¼ºÈ­µÈ ¾ÀÀÇ ÀÌ¸§À» °¡Á®¿Í ´Ù½Ã ·Îµå
+                // í˜„ì¬ í™œì„±í™”ëœ ì”¬ì˜ ì´ë¦„ì„ ê°€ì ¸ì™€ ë‹¤ì‹œ ë¡œë“œ
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
         }

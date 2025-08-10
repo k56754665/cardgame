@@ -1,4 +1,5 @@
-using System;
+ï»¿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Numerics;
@@ -32,6 +33,19 @@ public class RoundManager
     }
     private int _submitChance = 5;
 
+    public int Score => _score;
+    private int _score;
+
+    private enum ExpressionCardType { Number, Operator }
+
+    private struct ExpressionCard
+    {
+        public ExpressionCardType Type;
+        public int Score;
+    }
+
+    List<ExpressionCard> _expressionCards = new();
+
     public event Action OnExpressionChangeEvent;
     public event Action OnExpressionClearEvent;
     public event Action<long> OnExpressionIntegerEvent;
@@ -49,7 +63,7 @@ public class RoundManager
 
     public void SetRandomGoalNum()
     {
-        // TODO : ºĞ¼öµµ ¸¸µé¾î¾ßÇØ¿ä
+        // TODO : ë¶„ìˆ˜ë„ ë§Œë“¤ì–´ì•¼í•´ìš”
         _goalNum = UnityEngine.Random.Range(0, 100);
         OnGoalNumIntegerEvent?.Invoke(_goalNum);
     }
@@ -60,15 +74,25 @@ public class RoundManager
         OnChangeGoalPointEvent?.Invoke(_goalPoint);
     }
 
-    public void AddExpression(string s)
+    public void AddNumberCard(Card card)
     {
-        _expression += s;
+        _expressionCards.Add(new ExpressionCard { Type = ExpressionCardType.Number, Score = card.score });
+        _expression += card.number.ToString();
         OnExpressionChangeEvent?.Invoke();
     }
+
+    public void AddOperatorCard(OperatorCard card)
+    {
+        _expressionCards.Add(new ExpressionCard { Type = ExpressionCardType.Operator, Score = card.score });
+        _expression += card.symbol;
+        OnExpressionChangeEvent?.Invoke();
+    }
+
 
     public void ClearExpression()
     {
         _expression = "";
+        _expressionCards.Clear();
         OnExpressionClearEvent?.Invoke();
     }
 
@@ -78,13 +102,13 @@ public class RoundManager
         try
         {
             string newExpression = _expression
-                .Replace("¡¿", "*")  // °ö¼À ±âÈ£
-                .Replace("¡À", "/"); // ³ª´°¼À ±âÈ£
+                .Replace("Ã—", "*")  // ê³±ì…ˆ ê¸°í˜¸
+                .Replace("Ã·", "/"); // ë‚˜ëˆ—ì…ˆ ê¸°í˜¸
 
             DataTable table = new DataTable();
             object raw = table.Compute(newExpression, "");
 
-            // DataTable.Compute´Â º¸Åë double·Î ¹İÈ¯µÊ
+            // DataTable.ComputeëŠ” ë³´í†µ doubleë¡œ ë°˜í™˜ë¨
             double value = Convert.ToDouble(raw, CultureInfo.InvariantCulture);
 
             if (IsInteger(value))
@@ -94,6 +118,7 @@ public class RoundManager
 
                 if (intValue == _goalNum)
                 {
+                    CalculateScore();
                     return true;
                 }
             }
@@ -103,7 +128,7 @@ public class RoundManager
 
                 OnExpressionFractionEvent?.Invoke(frac.Num, frac.Den);
 
-                // TODO : ºĞ¼öÀÏ¶§ Á¤´ä°ú °°ÀºÁö °Ë»çÇØ¿ä
+                // TODO : ë¶„ìˆ˜ì¼ë•Œ ì •ë‹µê³¼ ê°™ì€ì§€ ê²€ì‚¬í•´ìš”
             }
         }
         catch (Exception e)
@@ -114,6 +139,21 @@ public class RoundManager
         }
         return false;
     }
+
+    public int CalculateScore()
+    {
+        int total = 0;
+        foreach (var card in _expressionCards)
+        {
+            if (card.Type == ExpressionCardType.Number)
+                total += card.Score;
+            else
+                total *= card.Score;
+        }
+        _score += total;
+        return total;
+    }
+
 
     public void ShowTooltipEvent(RectTransform rect, string description)
     {
