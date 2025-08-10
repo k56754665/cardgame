@@ -18,14 +18,20 @@ public class ExpressionButton : MonoBehaviour, IPointerClickHandler, IPointerEnt
             "-" => OperatorType.Subtract,
             "×" => OperatorType.Multiply,
             "÷" => OperatorType.Divide,
+            "(" => OperatorType.LeftParenthesis,
+            ")" => OperatorType.RightParenthesis,
             _ => OperatorType.Add,
         };
+
+        int score = (type == OperatorType.LeftParenthesis || type == OperatorType.RightParenthesis)
+            ? 1
+            : Managers.RoundManager.GetOperatorScore(type);
 
         _operatorCardData = new OperatorCard
         {
             type = type,
             symbol = _expressionString,
-            score = Managers.RoundManager.GetOperatorScore(type),
+            score = score,
         };
     }
 

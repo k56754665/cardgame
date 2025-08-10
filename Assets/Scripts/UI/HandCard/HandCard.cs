@@ -9,6 +9,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public Card CardData => _cardData;
     Card _cardData;
+
     [SerializeField] TMP_Text _text;
 
     [SerializeField] DOTweenAnimation _cardUpTween;
@@ -18,12 +19,12 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     bool _isSelected;
     public int HandIndex { get; private set; }
 
-    private void Start()
+    void Start()
     {
         Managers.RoundManager.OnExpressionClearEvent += DeselectCard;
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
         Managers.RoundManager.OnExpressionClearEvent -= DeselectCard;
     }
@@ -38,37 +39,23 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         _cardData = card;
         HandIndex = handIndex;
         _text.text = card.score > card.number ? $"{card.number}★" : $"{card.number}";
-        _text.color = GetSuitColor(card.suit);
     }
 
-    Color GetSuitColor(CardSuit suit)
-    {
-        return suit switch
-        {
-            CardSuit.Suit1 => Color.white,
-            CardSuit.Suit2 => Color.red,
-            CardSuit.Suit3 => Color.blue,
-            CardSuit.Suit4 => Color.green,
-            _ => Color.white,
-        };
-    }
-
-    private void CardUp()
+    void CardUp()
     {
         _cardColorTween?.DOPlayForward();
         _cardUpTween?.DOPlayForward();
     }
 
-    private void CardDown()
+    void CardDown()
     {
         _cardColorTween?.DOPlayBackwards();
         _cardUpTween?.DOPlayBackwards();
     }
 
-    private void DeselectCard()
+    void DeselectCard()
     {
         _isSelected = false;
-
         CardDown();
     }
 

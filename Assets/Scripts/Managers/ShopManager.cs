@@ -88,6 +88,8 @@ public struct ShopItem
             OperatorType.Subtract => "-",
             OperatorType.Multiply => "×",
             OperatorType.Divide => "÷",
+            OperatorType.LeftParenthesis => "(",
+            OperatorType.RightParenthesis => ")",
             _ => "",
         };
     }

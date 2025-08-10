@@ -219,6 +219,6 @@ public class RoundManager
 
     public int GetOperatorScore(OperatorType type)
     {
-        return _operatorScores[type];
+        return _operatorScores.TryGetValue(type, out int score) ? score : 1;
     }
 }

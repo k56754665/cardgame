@@ -5,15 +5,15 @@ using UnityEngine.UI;
 
 public class UI_HandCard : MonoBehaviour
 {
-    RectTransform _handCardRoot;                 // 루트는 반드시 RectTransform로 받기
-    HorizontalLayoutGroup _layoutGroup;          // 실제 LayoutGroup이 붙은 곳
+    RectTransform _handCardRoot;                 // 슬롯들이 붙는 부모(레이아웃 대상)
+    HorizontalLayoutGroup _layoutGroup;          // 실제 HorizontalLayoutGroup
     GameObject _handCardPrefab;
 
-    readonly List<GameObject> _handCards = new();
-    readonly Queue<(Card card, int index)> _pendingDraws = new();
+    readonly List<GameObject> _handCards = new();                      // 슬롯 GO 목록(각 슬롯의 자식[0]이 HandCard)
+    readonly Queue<(Card card, int index)> _pendingDraws = new();      // 대기 드로우
 
     int _discardAnimations;
-    bool _animating; // 레이아웃 이동/드로우 애니메이션 중
+    bool _animating;
 
     void Start()
     {
@@ -44,9 +44,9 @@ public class UI_HandCard : MonoBehaviour
         for (int i = 0; i < Managers.DeckManager.Hand.Count; i++)
         {
             Card card = Managers.DeckManager.Hand[i];
-            GameObject go = Instantiate(_handCardPrefab, _handCardRoot);
-            go.GetComponentInChildren<HandCard>().SetCard(card, i);
-            _handCards.Add(go);
+            GameObject slot = Instantiate(_handCardPrefab, _handCardRoot);
+            slot.GetComponentInChildren<HandCard>().SetCard(card, i);
+            _handCards.Add(slot);
         }
 
         ForceRebuild();
@@ -58,28 +58,50 @@ public class UI_HandCard : MonoBehaviour
         TryProcessDraws();
     }
 
+    // 슬롯은 레이아웃에 남겨둔 채, 자식 HandCard만 아래로 내린다 -> 간격 즉시 변화 없음
     void HandleCardDiscarded(Card card, int index)
     {
         if (index < 0 || index >= _handCards.Count) return;
 
-        GameObject go = _handCards[index];
-        _handCards.RemoveAt(index);
+        GameObject slotGO = _handCards[index];
+        RectTransform slotRect = slotGO.GetComponent<RectTransform>();
 
-        // 아래로 빠지는 애니메이션(슬롯 자체)
-        var slotRect = go.GetComponent<RectTransform>();
+        // 슬롯은 레이아웃 포함 상태 유지(간격 유지)
         var le = slotRect.GetComponent<LayoutElement>() ?? slotRect.gameObject.AddComponent<LayoutElement>();
-        le.ignoreLayout = true;
+        le.ignoreLayout = false;
+
+        // 내부 비주얼(HandCard)만 내려보내기
+        RectTransform inner = slotGO.transform.GetChild(0) as RectTransform;
+        if (inner == null)
+        {
+            // 안전장치: 구조가 다르면 슬롯 자체를 fallback
+            inner = slotRect;
+        }
+
+        // 남아있는 다른 슬롯들의 “수축 전 시작 좌표” 저장
+        var startMap = new Dictionary<RectTransform, Vector2>();
+        for (int i = 0; i < _handCards.Count; i++)
+        {
+            if (i == index) continue;
+            var rt = _handCards[i].GetComponent<RectTransform>();
+            startMap[rt] = rt.anchoredPosition;
+        }
 
         _discardAnimations++;
-        slotRect.DOAnchorPos(slotRect.anchoredPosition + new Vector2(0f, -200f), 0.25f)
-                .SetEase(Ease.InBack)
-                .OnComplete(() =>
-                {
-                    Destroy(go);
-                    _discardAnimations--;
-                    UpdateIndices();
-                    AnimateToCurrentLayout(moveDuration: 0.22f, ease: Ease.OutCubic);
-                });
+        // 필요하면 페이드 추가: cg.DOFade(0f, 0.25f);
+        inner.DOAnchorPos(inner.anchoredPosition + new Vector2(0f, -200f), 0.25f)
+             .SetEase(Ease.InBack)
+             .OnComplete(() =>
+             {
+                 // 슬롯 제거(이 시점에 레이아웃이 한 칸 줄어듦)
+                 _handCards.RemoveAt(index);
+                 Destroy(slotGO);
+
+                 // 제거 전 위치(startMap) -> 제거 후 레이아웃 타겟으로 부드럽게 수축
+                 AnimateToCurrentLayoutUsingSavedStarts(0.22f, Ease.OutCubic, startMap);
+
+                 _discardAnimations--;
+             });
     }
 
     void TryProcessDraws()
@@ -87,30 +109,30 @@ public class UI_HandCard : MonoBehaviour
         if (_animating || _discardAnimations > 0) return;
         if (_pendingDraws.Count == 0) return;
 
-        // 한 번에 쌓인 드로우 전부 적용하고, 한 방에 애니메이션 (더 부드러움)
-        List<GameObject> newCards = new();
+        // 몰아서 생성 -> 한 번에 재배치
+        List<GameObject> newSlots = new();
 
         while (_pendingDraws.Count > 0)
         {
             var (card, index) = _pendingDraws.Dequeue();
 
-            GameObject go = Instantiate(_handCardPrefab, _handCardRoot);
-            go.transform.SetSiblingIndex(Mathf.Clamp(index, 0, _handCards.Count));
+            GameObject slot = Instantiate(_handCardPrefab, _handCardRoot);
+            slot.transform.SetSiblingIndex(Mathf.Clamp(index, 0, _handCards.Count));
 
-            HandCard handCard = go.GetComponentInChildren<HandCard>();
+            HandCard handCard = slot.GetComponentInChildren<HandCard>();
             handCard.SetCard(card, index);
 
-            _handCards.Insert(Mathf.Clamp(index, 0, _handCards.Count), go);
-            newCards.Add(go);
+            _handCards.Insert(Mathf.Clamp(index, 0, _handCards.Count), slot);
+            newSlots.Add(slot);
         }
 
         UpdateIndices();
 
-        // 새 카드들의 내부는 오른쪽에서 슬라이드 인
+        // 새 슬롯들은 "오른쪽 바깥"에서 들어오도록 시작점 조정
         AnimateToCurrentLayout(
             moveDuration: 0.24f,
             ease: Ease.OutCubic,
-            newCardsSlideIn: newCards
+            newCardsSlideIn: newSlots
         );
     }
 
@@ -132,8 +154,8 @@ public class UI_HandCard : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 레이아웃 기준의 "목표 위치"로 모든 슬롯을 동시에 보간한다.
-    /// newCardsSlideIn이 있으면 그 카드의 내부(자식 0)는 오른쪽에서 슬라이드 인.
+    /// (드로우용) 현재 레이아웃 기준 타겟으로 이동.
+    /// newCardsSlideIn: 새 슬롯들은 타겟에서 오른쪽으로 오프셋한 위치를 시작점으로 사용.
     /// </summary>
     void AnimateToCurrentLayout(float moveDuration, Ease ease, List<GameObject> newCardsSlideIn = null)
     {
@@ -146,7 +168,7 @@ public class UI_HandCard : MonoBehaviour
 
         _animating = true;
 
-        // 1) 현재(시작) 위치 스냅샷
+        // 1) 현재 시작 위치 스냅샷
         List<RectTransform> rects = new();
         List<Vector2> startPos = new();
         foreach (var go in _handCards)
@@ -156,7 +178,7 @@ public class UI_HandCard : MonoBehaviour
             startPos.Add(rt.anchoredPosition);
         }
 
-        // 2) 레이아웃을 정상 모드(ignore=false)로 두고 "목표 위치" 계산
+        // 2) 레이아웃 켜고 타겟 위치 산출
         foreach (var rt in rects)
         {
             var le = rt.GetComponent<LayoutElement>() ?? rt.gameObject.AddComponent<LayoutElement>();
@@ -168,7 +190,27 @@ public class UI_HandCard : MonoBehaviour
         foreach (var rt in rects)
             targetPos.Add(rt.anchoredPosition);
 
-        // 3) 다시 레이아웃 영향 차단 + 화면상 시작점으로 되돌림(스냅 방지)
+        // 3) 새 슬롯들은 타겟에서 우측으로 민 위치를 시작점으로 덮어쓰기
+        if (newCardsSlideIn != null && newCardsSlideIn.Count > 0)
+        {
+            var newSet = new HashSet<RectTransform>();
+            foreach (var go in newCardsSlideIn)
+            {
+                var rt = go != null ? go.GetComponent<RectTransform>() : null;
+                if (rt != null) newSet.Add(rt);
+            }
+
+            float off = Mathf.Max(200f, _handCardRoot.rect.width * 0.6f);
+            for (int i = 0; i < rects.Count; i++)
+            {
+                if (newSet.Contains(rects[i]))
+                {
+                    startPos[i] = targetPos[i] + new Vector2(off, 0f);
+                }
+            }
+        }
+
+        // 4) 레이아웃 영향 차단 + 시작점 적용
         foreach (var rt in rects)
         {
             var le = rt.GetComponent<LayoutElement>();
@@ -177,28 +219,11 @@ public class UI_HandCard : MonoBehaviour
         for (int i = 0; i < rects.Count; i++)
             rects[i].anchoredPosition = startPos[i];
 
-        // 4) 시퀀스 구성: 모든 슬롯을 동시에 target으로 보간
+        // 5) 타겟으로 보간
         Sequence seq = DOTween.Sequence();
         for (int i = 0; i < rects.Count; i++)
             seq.Join(rects[i].DOAnchorPos(targetPos[i], moveDuration).SetEase(ease));
 
-        // 5) 새 카드 내부 비주얼 슬라이드 인(있을 경우)
-        if (newCardsSlideIn != null)
-        {
-            foreach (var go in newCardsSlideIn)
-            {
-                if (go == null) continue;
-                // 내부 비주얼(자식 0) 기준으로 슬라이드 (프리팹 구조에 맞춰 조정)
-                var inner = go.transform.GetChild(0) as RectTransform;
-                if (inner != null)
-                {
-                    inner.anchoredPosition = new Vector2(500f, 0f);
-                    seq.Join(inner.DOAnchorPos(Vector2.zero, moveDuration + 0.04f).SetEase(Ease.OutBack));
-                }
-            }
-        }
-
-        // 6) 완료 처리: 레이아웃 복구 + 후속 드로우 처리
         seq.OnComplete(() =>
         {
             foreach (var rt in rects)
@@ -207,6 +232,73 @@ public class UI_HandCard : MonoBehaviour
                 if (le != null) le.ignoreLayout = false;
             }
             ForceRebuild();
+
+            _animating = false;
+            TryProcessDraws();
+        });
+    }
+
+    /// <summary>
+    /// (버리기용) 제거 전 시작좌표(savedStarts) -> 제거 후 레이아웃 타겟으로 보간.
+    /// </summary>
+    void AnimateToCurrentLayoutUsingSavedStarts(float moveDuration, Ease ease, Dictionary<RectTransform, Vector2> savedStarts)
+    {
+        if (_handCards.Count == 0)
+        {
+            _animating = false;
+            TryProcessDraws();
+            return;
+        }
+
+        _animating = true;
+
+        // 남아있는 슬롯들
+        List<RectTransform> rects = new();
+        foreach (var go in _handCards)
+            rects.Add(go.GetComponent<RectTransform>());
+
+        // 1) 레이아웃 켜서 목표 위치 산출(슬롯 제거 이후의 타겟)
+        foreach (var rt in rects)
+        {
+            var le = rt.GetComponent<LayoutElement>() ?? rt.gameObject.AddComponent<LayoutElement>();
+            le.ignoreLayout = false;
+        }
+        ForceRebuild();
+
+        List<Vector2> targetPos = new();
+        foreach (var rt in rects)
+            targetPos.Add(rt.anchoredPosition);
+
+        // 2) 다시 레이아웃 영향 차단 + 제거 전 시작좌표로 복원
+        foreach (var rt in rects)
+        {
+            var le = rt.GetComponent<LayoutElement>();
+            le.ignoreLayout = true;
+        }
+        for (int i = 0; i < rects.Count; i++)
+        {
+            Vector2 start;
+            if (!savedStarts.TryGetValue(rects[i], out start))
+                start = rects[i].anchoredPosition;
+            rects[i].anchoredPosition = start;
+        }
+
+        // 3) 타겟으로 보간
+        Sequence seq = DOTween.Sequence();
+        for (int i = 0; i < rects.Count; i++)
+            seq.Join(rects[i].DOAnchorPos(targetPos[i], moveDuration).SetEase(ease));
+
+        seq.OnComplete(() =>
+        {
+            foreach (var rt in rects)
+            {
+                var le = rt.GetComponent<LayoutElement>();
+                if (le != null) le.ignoreLayout = false;
+            }
+            ForceRebuild();
+
+            // 인덱스 갱신(실제 남은 슬롯 기준)
+            UpdateIndices();
 
             _animating = false;
             TryProcessDraws();
