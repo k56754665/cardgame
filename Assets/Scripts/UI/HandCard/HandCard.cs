@@ -94,7 +94,7 @@ public class HandCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void ShowTooltip()
     {
         RectTransform rect = GetComponent<RectTransform>();
-        string description = $"Á¡¼ö\n{_cardData.score}";
+        string description = $"ì ìˆ˜\n+{_cardData.score}";
         Managers.RoundManager.ShowTooltipEvent(rect, description);
     }
 

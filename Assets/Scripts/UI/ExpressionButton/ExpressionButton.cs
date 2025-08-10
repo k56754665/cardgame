@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ExpressionButton : MonoBehaviour, IPointerClickHandler, ITooltip
+public class ExpressionButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ITooltip
 {
     string _expressionString;
     public OperatorCard OperatorCardData => _operatorCardData;
@@ -28,11 +28,21 @@ public class ExpressionButton : MonoBehaviour, IPointerClickHandler, ITooltip
 
     public void ShowTooltip()
     {
-        Managers.RoundManager.ShowTooltipEvent((RectTransform)transform, $"Á¡¼ö\n¡¿{_operatorCardData.score}");
+        Managers.RoundManager.ShowTooltipEvent((RectTransform)transform, $"ì ìˆ˜\nÃ—{_operatorCardData.score}");
     }
 
     public void HideTooltip()
     {
         Managers.RoundManager.HideTooltipEvent();
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        ShowTooltip();
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        HideTooltip();
     }
 }

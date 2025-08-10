@@ -6,7 +6,7 @@ public class UI_Tooltip : MonoBehaviour
 {
     TMP_Text _text;
     Canvas _canvas;
-    Vector2 _offset = new Vector2(0f, 60f);
+    Vector2 _offset = new Vector2(90f, -30f);
 
     void Start()
     {
@@ -32,37 +32,37 @@ public class UI_Tooltip : MonoBehaviour
     {
         if (rect == null) return;
 
-        // 0) ·¹ÀÌ¾Æ¿ô/Äµ¹ö½º ÃÖ½ÅÈ­ (HLG Æ÷ÇÔ)
+        // 0) ë ˆì´ì•„ì›ƒ/ìº”ë²„ìŠ¤ ìµœì‹ í™” (HLG í¬í•¨)
         Canvas.ForceUpdateCanvases();
 
-        // 1) ÅøÆÁ È°¼ºÈ­ & ÅØ½ºÆ® Àû¿ë ÈÄ Áï½Ã ·¹ÀÌ¾Æ¿ô °è»ê
+        // 1) íˆ´íŒ í™œì„±í™” & í…ìŠ¤íŠ¸ ì ìš© í›„ ì¦‰ì‹œ ë ˆì´ì•„ì›ƒ ê³„ì‚°
         _canvas.enabled = true;
         _text.text = description;
 
         RectTransform tooltipRect = (RectTransform)transform.GetChild(0);
 
-        // ÅøÆÁ ÀÚÃ¼ ·¹ÀÌ¾Æ¿ô Áï½Ã °»½Å
+        // íˆ´íŒ ìì²´ ë ˆì´ì•„ì›ƒ ì¦‰ì‹œ ê°±ì‹ 
         LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipRect);
-        // (ÅøÆÁ ºÎ¸ğµµ ·¹ÀÌ¾Æ¿ôÀÌ ÀÖ´Ù¸é °°ÀÌ °­Á¦)
+        // (íˆ´íŒ ë¶€ëª¨ë„ ë ˆì´ì•„ì›ƒì´ ìˆë‹¤ë©´ ê°™ì´ ê°•ì œ)
         LayoutRebuilder.ForceRebuildLayoutImmediate(_canvas.transform as RectTransform);
 
-        // 2) ´ë»ó Rect ÃÖ½Å°ªÀ» ¿ùµå¡æ½ºÅ©¸°À¸·Î
+        // 2) ëŒ€ìƒ Rect ìµœì‹ ê°’ì„ ì›”ë“œâ†’ìŠ¤í¬ë¦°ìœ¼ë¡œ
         Camera uiCamera = _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera;
         Vector3 worldCenter = rect.TransformPoint(rect.rect.center);
         Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(uiCamera, worldCenter);
 
-        // 3) ÅøÆÁ Å©±â/½ºÅ©¸° Å©±â
+        // 3) íˆ´íŒ í¬ê¸°/ìŠ¤í¬ë¦° í¬ê¸°
         Vector2 tooltipSize = tooltipRect.rect.size * _canvas.scaleFactor;
         Vector2 screenSize = new Vector2(Screen.width, Screen.height);
 
-        // 4) È­¸é Å¬·¥ÇÁ
+        // 4) í™”ë©´ í´ë¨í”„
         float halfW = tooltipSize.x * 0.5f;
         float halfH = tooltipSize.y * 0.5f;
         float clampedX = Mathf.Clamp(screenPos.x, halfW, screenSize.x - halfW);
         float clampedY = Mathf.Clamp(screenPos.y, halfH, screenSize.y - halfH);
         Vector2 clampedScreenPos = new Vector2(clampedX, clampedY);
 
-        // 5) ½ºÅ©¸° ¡æ Äµ¹ö½º ·ÎÄÃ
+        // 5) ìŠ¤í¬ë¦° â†’ ìº”ë²„ìŠ¤ ë¡œì»¬
         Vector2 localPos;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             _canvas.transform as RectTransform,

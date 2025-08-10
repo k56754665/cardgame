@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -60,6 +60,7 @@ public class RoundManager
     public event Action<BigInteger, BigInteger> OnGoalNumFractionEvent;
 
     public event Action<int> OnChangeGoalPointEvent;
+    public event Action<int> OnChangeScoreEvent;
 
     public void SetRandomGoalNum()
     {
@@ -151,6 +152,7 @@ public class RoundManager
                 total *= card.Score;
         }
         _score += total;
+        OnChangeScoreEvent?.Invoke(_score);
         return total;
     }
 
@@ -163,6 +165,28 @@ public class RoundManager
     public void HideTooltipEvent()
     {
         OnHideTooltipEvent?.Invoke();
+    }
+
+    public bool TryGetExpressionScore(out int score)
+    {
+        score = 0;
+        if (_expressionCards.Count == 0)
+            return false;
+
+        if (_expressionCards[_expressionCards.Count - 1].Type == ExpressionCardType.Operator)
+            return false;
+
+        int total = 0;
+        foreach (var card in _expressionCards)
+        {
+            if (card.Type == ExpressionCardType.Number)
+                total += card.Score;
+            else
+                total *= card.Score;
+        }
+
+        score = total;
+        return true;
     }
 
     private bool IsInteger(double x, double epsilon = 1e-12)

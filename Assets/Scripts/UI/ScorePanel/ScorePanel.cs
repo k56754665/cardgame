@@ -8,12 +8,29 @@ public class ScorePanel : MonoBehaviour
 
     private void Start()
     {
+        HandleCurrentScoreText(Managers.RoundManager.Score);
+        HandleScoreText(0);
+        Managers.RoundManager.OnExpressionChangeEvent += HandleExpressionChange;
+        Managers.RoundManager.OnExpressionClearEvent += HandleExpressionClear;
+        Managers.RoundManager.OnChangeScoreEvent += HandleCurrentScoreText;
+    }
 
+    void HandleExpressionChange()
+    {
+        if (Managers.RoundManager.TryGetExpressionScore(out int score))
+            HandleScoreText(score);
+        else
+            HandleScoreText(0);
+    }
+
+    void HandleExpressionClear()
+    {
+        HandleScoreText(0);
     }
 
     private void HandleCurrentScoreText(int score)
     {
-        _currentScoreText.text = $"ÇöÀç Á¡¼ö\n{score}";
+        _currentScoreText.text = $"í˜„ì¬ ì ìˆ˜\n{score}";
     }
 
     private void HandleScoreText(int score)
@@ -23,6 +40,8 @@ public class ScorePanel : MonoBehaviour
 
     private void OnDestroy()
     {
-
+        Managers.RoundManager.OnExpressionChangeEvent -= HandleExpressionChange;
+        Managers.RoundManager.OnExpressionClearEvent -= HandleExpressionClear;
+        Managers.RoundManager.OnChangeScoreEvent -= HandleCurrentScoreText;
     }
 }
