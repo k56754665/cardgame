@@ -347,4 +347,25 @@ public class UI_HandCard : MonoBehaviour
             TryProcessDraws();
         });
     }
+
+    public void DestroyImmediately()
+    {
+        // 트윈 정리
+        for (int i = _handCardRoot.childCount - 1; i >= 0; i--)
+        {
+            var child = _handCardRoot.GetChild(i).gameObject;
+            DOTween.Kill(child, complete: false);
+            Destroy(child);
+        }
+
+        // 리스트 정리(파괴된 항목 제거 + 비우기)
+        _handCards.RemoveAll(go => go == null);
+        _handCards.Clear();
+
+        // 대기 큐/상태도 초기화(선택)
+        _pendingDraws.Clear();
+        _discardAnimations = 0;
+        _animating = false;
+    }
+
 }
