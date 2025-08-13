@@ -13,7 +13,7 @@ public class GoalScorePanel : MonoBehaviour
 
     private void ChangeGoalPoint(int goalPoint)
     {
-        _text.text = $"¸ñÇ¥ Á¡¼ö\n{goalPoint}";
+        _text.text = $"ëª©í‘œ IQ\n{goalPoint}";
     }
 
     private void OnDestroy()

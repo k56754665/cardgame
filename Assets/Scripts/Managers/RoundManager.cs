@@ -11,6 +11,10 @@ public class RoundManager
     public long GoalNum => _goalNum;
     private long _goalNum;
 
+    public Fraction GoalFraction => _goalFraction;
+    private Fraction _goalFraction;
+    private bool _goalIsFraction;
+
     public int GoalPoint => _goalPoint;
     private int _goalPoint = 50;
 
@@ -21,7 +25,7 @@ public class RoundManager
     private string _expression = "";
 
     public int TotalText => _totalText;
-    private int _totalText = 10;
+    private int _totalText = 15;
 
     public int SubmitChance
     {
@@ -36,6 +40,13 @@ public class RoundManager
 
     public int Score => _score;
     private int _score;
+
+    public void ResetScore()
+    {
+        _score = 0;
+        OnChangeScoreEvent?.Invoke(_score);
+    }
+
 
     private enum ExpressionCardType { Number, Operator }
 
@@ -74,9 +85,26 @@ public class RoundManager
 
     public void SetRandomGoalNum()
     {
-        // TODO : 분수도 만들어야해요
-        _goalNum = UnityEngine.Random.Range(0, 100);
-        OnGoalNumIntegerEvent?.Invoke(_goalNum);
+        if (UnityEngine.Random.Range(0, 2) == 0)
+        {
+            _goalIsFraction = false;
+            _goalNum = UnityEngine.Random.Range(0, 100);
+            OnGoalNumIntegerEvent?.Invoke(_goalNum);
+        }
+        else
+        {
+            _goalIsFraction = true;
+
+            int den = UnityEngine.Random.Range(2, 10);
+            int num;
+            do
+            {
+                num = UnityEngine.Random.Range(1, 100);
+            } while (num % den == 0);
+
+            _goalFraction = new Fraction(num, den);
+            OnGoalNumFractionEvent?.Invoke(_goalFraction.Num, _goalFraction.Den);
+        }
     }
 
     public void SetGoalPoint()
@@ -155,8 +183,7 @@ public class RoundManager
             {
                 long intValue = (long)Math.Round(value);
                 OnExpressionIntegerEvent?.Invoke(intValue);
-
-                if (intValue == _goalNum)
+                if (!_goalIsFraction && intValue == _goalNum)
                 {
                     CalculateScore();
                     return true;
@@ -167,8 +194,11 @@ public class RoundManager
                 Fraction frac = Fraction.FromDouble(value, maxDenominator: 100000, epsilon: 1e-12);
 
                 OnExpressionFractionEvent?.Invoke(frac.Num, frac.Den);
-
-                // TODO : 분수일때 정답과 같은지 검사해요
+                if (_goalIsFraction && frac.Equals(_goalFraction))
+                {
+                    CalculateScore();
+                    return true;
+                }
             }
         }
         catch (Exception e)

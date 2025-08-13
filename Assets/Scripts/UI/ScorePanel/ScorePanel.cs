@@ -30,7 +30,7 @@ public class ScorePanel : MonoBehaviour
 
     private void HandleCurrentScoreText(int score)
     {
-        _currentScoreText.text = $"현재 점수\n{score}";
+        _currentScoreText.text = $"현재 IQ\n{score}";
     }
 
     private void HandleScoreText(int score)

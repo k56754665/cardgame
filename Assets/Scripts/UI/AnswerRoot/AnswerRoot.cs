@@ -44,6 +44,11 @@ public class AnswerRoot : MonoBehaviour
         numeratorText.text = $"{num}";
     }
 
+    public void ResetAnswer()
+    {
+        HideAll();
+    }
+
     private void OnDestroy()
     {
         Managers.RoundManager.OnExpressionIntegerEvent -= ShowInteger;

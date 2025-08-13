@@ -8,6 +8,8 @@ public class EnterRoundTurn : ITurnState
         Debug.Log("[EnterRoundTurn] EnterState");
 
         Managers.RoundManager.ClearExpression();
+        Managers.RoundManager.ResetScore();
+        GameObject.FindAnyObjectByType<AnswerRoot>()?.ResetAnswer();
         Managers.RoundManager.SetRandomGoalNum();
         Managers.RoundManager.SetGoalPoint();
 

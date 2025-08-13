@@ -21,6 +21,7 @@ public class UI_GoalNum : MonoBehaviour
 
     private void ShowInteger(long num)
     {
+        HideFraction();
         integerText.text = $"{num}";
     }
 
@@ -31,6 +32,7 @@ public class UI_GoalNum : MonoBehaviour
 
     private void ShowFraction(BigInteger num, BigInteger den)
     {
+        HideInteger();
         _fractionLine.enabled = true;
         denominatorText.text = $"{den}";
         numeratorText.text = $"{num}";
